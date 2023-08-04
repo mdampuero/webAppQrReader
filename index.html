@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +14,9 @@
 	<link type="text/css" rel="stylesheet" href="css/JsQRScanner.css">
 	<script type="text/javascript" src="jsPretty/jsqrscanner.nocache.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 </head>
+
 <body>
 	<header data-bs-theme="dark">
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -33,7 +36,7 @@
 				</div>
 			</div>
 			<hr class="my-3">
-			<!-- <button onclick="onQRCodeScanned('2222')">Leer</button> -->
+			<!-- <button class="btn btn-info" onclick="onQRCodeScanned('22s22adsadsas')">Leer</button> -->
 		</div>
 		<footer class="container">
 			<p class="float-end"><a href="#">Back to top</a></p>
@@ -41,14 +44,45 @@
 		</footer>
 	</main>
 	<script type="text/javascript">
+		var reading = true;
 		function onQRCodeScanned(scannedText) {
-			Swal.fire({
-				title: 'Success!',
-				text: scannedText,
-				icon: 'success',
-				confirmButtonText: 'Ok'
-			})
+			if (reading) {
+				reading = false;
+				$.ajax({
+					url: 'https://node-test-puzo.onrender.com/api/readings',
+					type: 'POST',
+					contentType: "application/json",
+					data: JSON.stringify({
+						"string": scannedText
+					}),
+					crossDomain: true,
+					success: function (data) {
+						Swal.fire({
+							title: 'Success!',
+							text: "Cantidad "+data.reading.count+"/"+data.max,
+							icon: 'success',
+							confirmButtonText: 'Ok'
+						}).then(function () {
+							reading = true;
+						})
+					},
+					complete: function () { },
+					error: function (data, status, error) {
+						Swal.fire({
+							title: 'Error!',
+							text: scannedText,
+							icon: 'error',
+							confirmButtonText: 'Ok'
+						}).then(function () {
+							reading = true;
+						})
+					},
+				});
+				
+			}
 		}
+
+
 
 		function provideVideo() {
 			var n = navigator;
